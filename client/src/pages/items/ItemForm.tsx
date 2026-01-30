@@ -27,7 +27,7 @@ export default function ItemForm() {
   const { toast } = useToast();
   const isEditing = !!id;
 
-  const { data: item, isLoading: isLoadingItem } = useQuery({
+  const { data: item, isLoading: isLoadingItem } = useQuery<any>({
     queryKey: [`/api/items/${id}`],
     enabled: isEditing,
   });
@@ -42,7 +42,7 @@ export default function ItemForm() {
       taxRate: 18,
       description: "",
     },
-    values: item,
+    values: item as InsertItem,
   });
 
   const mutation = useMutation({

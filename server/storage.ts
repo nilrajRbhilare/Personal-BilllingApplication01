@@ -1,4 +1,4 @@
-import { type Customer, type InsertCustomer, type Invoice, type InsertInvoice, type Settings, type InsertSettings } from "@shared/schema";
+import { type Customer, type InsertCustomer, type Invoice, type InsertInvoice, type Settings, type InsertSettings, type Item, type InsertItem } from "@shared/schema";
 import fs from "fs/promises";
 import path from "path";
 

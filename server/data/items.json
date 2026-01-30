@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "Web Development Service",
+    "hsnCode": "998311",
+    "sellingPrice": 100,
+    "costPrice": 50,
+    "taxRate": 18,
+    "description": "Hourly web development consulting"
+  }
+]

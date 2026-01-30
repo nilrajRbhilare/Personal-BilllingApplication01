@@ -77,7 +77,7 @@ export default function ItemsList() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">Loading...</TableCell>
               </TableRow>
-            ) : items?.length === 0 ? (
+            ) : items && Array.isArray(items) && items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
@@ -87,7 +87,7 @@ export default function ItemsList() {
                 </TableCell>
               </TableRow>
             ) : (
-              items?.map((item: any) => (
+              (items as any[])?.map((item: any) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell>{item.hsnCode}</TableCell>
