@@ -91,7 +91,7 @@ export const PrintableInvoice = forwardRef<HTMLDivElement, PrintableInvoiceProps
                   <td className="py-4 text-right text-slate-600 font-mono">₹{Number(item.unitPrice).toFixed(2)}</td>
                   <td className="py-4 text-right text-slate-600 font-mono">{item.taxRate}%</td>
                   <td className="py-4 text-right text-slate-900 font-mono font-medium">
-                    ₹{(Number(item.quantity) * Number(item.unitPrice) * (1 + (Number(item.taxRate) || 0) / 100)).toFixed(2)}
+                    ₹{Number(item.unitPrice).toFixed(2)}
                   </td>
                 </tr>
               ))}

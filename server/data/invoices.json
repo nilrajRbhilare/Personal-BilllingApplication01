@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "customerId": 1,
+    "invoiceNumber": "INV-7496",
+    "date": "2026-01-30",
+    "dueDate": "2026-02-06",
+    "status": "paid",
+    "subtotal": 200,
+    "tax": 36,
+    "total": 236,
+    "notes": "Thank you for your business!",
+    "items": [
+      {
+        "description": "Web Development Service",
+        "quantity": 1,
+        "unitPrice": 200,
+        "taxRate": 18
+      }
+    ],
+    "id": 1
+  }
+]

@@ -101,10 +101,9 @@ export default function InvoiceForm() {
   
   const { subtotal, tax, total } = useMemo(() => {
     const totals = (items || []).reduce((acc, item) => {
-      const q = Number(item.quantity) || 0;
       const p = Number(item.unitPrice) || 0;
       const t = Number(item.taxRate) || 0;
-      const lineSubtotal = q * p;
+      const lineSubtotal = p;
       const lineTax = lineSubtotal * (t / 100);
       return {
         subtotal: acc.subtotal + lineSubtotal,
@@ -247,7 +246,7 @@ export default function InvoiceForm() {
                   <div className="space-y-4">
                     {fields.map((field, index) => (
                       <div key={field.id} className="grid grid-cols-12 gap-2 items-end">
-                        <div className="col-span-3">
+                        <div className="col-span-4">
                           <FormField
                             control={form.control}
                             name={`items.${index}.description`}
@@ -255,37 +254,35 @@ export default function InvoiceForm() {
                               <FormItem>
                                 <FormLabel className={index > 0 ? "sr-only" : ""}>Item</FormLabel>
                                 <FormControl>
-                                  <div className="flex flex-col gap-1">
-                                    <Select 
-                                      onValueChange={(val) => {
-                                        const selectedItem = availableItems?.find(i => i.name === val);
-                                        if (selectedItem) {
-                                          form.setValue(`items.${index}.description`, selectedItem.name);
-                                          form.setValue(`items.${index}.unitPrice`, selectedItem.sellingPrice);
-                                          form.setValue(`items.${index}.taxRate`, selectedItem.taxRate);
-                                        }
-                                      }}
-                                    >
-                                      <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select Item" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {availableItems?.map((item) => (
-                                          <SelectItem key={item.id} value={item.name}>
-                                            {item.name}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <Input placeholder="Description" {...field} className="h-8" />
-                                  </div>
+                                  <Select 
+                                    onValueChange={(val) => {
+                                      const selectedItem = availableItems?.find(i => i.name === val);
+                                      if (selectedItem) {
+                                        const qty = Number(form.getValues(`items.${index}.quantity`)) || 1;
+                                        form.setValue(`items.${index}.description`, selectedItem.name);
+                                        form.setValue(`items.${index}.unitPrice`, selectedItem.sellingPrice * qty);
+                                        form.setValue(`items.${index}.taxRate`, selectedItem.taxRate);
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select Item" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {availableItems?.map((item) => (
+                                        <SelectItem key={item.id} value={item.name}>
+                                          {item.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <div className="col-span-1">
+                        <div className="col-span-2">
                           <FormField
                             control={form.control}
                             name={`items.${index}.quantity`}
@@ -293,7 +290,21 @@ export default function InvoiceForm() {
                               <FormItem>
                                 <FormLabel className={index > 0 ? "sr-only" : ""}>Qty</FormLabel>
                                 <FormControl>
-                                  <Input type="number" placeholder="Qty" min="1" {...field} />
+                                  <Input 
+                                    type="number" 
+                                    placeholder="Qty" 
+                                    min="1" 
+                                    {...field} 
+                                    onChange={(e) => {
+                                      const newQty = Number(e.target.value);
+                                      field.onChange(newQty);
+                                      const selectedItemName = form.getValues(`items.${index}.description`);
+                                      const selectedItem = availableItems?.find(i => i.name === selectedItemName);
+                                      if (selectedItem) {
+                                        form.setValue(`items.${index}.unitPrice`, selectedItem.sellingPrice * newQty);
+                                      }
+                                    }}
+                                  />
                                 </FormControl>
                               </FormItem>
                             )}
@@ -316,7 +327,7 @@ export default function InvoiceForm() {
                             )}
                           />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-1">
                           <FormField
                             control={form.control}
                             name={`items.${index}.taxRate`}
@@ -333,15 +344,14 @@ export default function InvoiceForm() {
                             )}
                           />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-2">
                           <FormItem>
                             <FormLabel className={index > 0 ? "sr-only" : ""}>Amount (Inc. Tax)</FormLabel>
-                            <div className="h-9 flex items-center px-3 border rounded-md bg-muted/30 font-medium">
+                            <div className="h-9 flex items-center px-3 border rounded-md bg-muted/30 font-medium overflow-hidden whitespace-nowrap text-ellipsis">
                               ₹{(() => {
-                                const q = Number(items[index]?.quantity) || 0;
                                 const p = Number(items[index]?.unitPrice) || 0;
                                 const t = Number(items[index]?.taxRate) || 0;
-                                return (q * p * (1 + t/100)).toFixed(2);
+                                return (p * (1 + t/100)).toFixed(2);
                               })()}
                             </div>
                           </FormItem>
