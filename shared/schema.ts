@@ -59,6 +59,11 @@ export const insertItemSchema = z.object({
 export type Item = z.infer<typeof insertItemSchema> & { id: number };
 export type InsertItem = z.infer<typeof insertItemSchema>;
 
+export const customers = { $inferSelect: {} as Customer };
+export const invoices = { $inferSelect: {} as Invoice };
+export const settings = { $inferSelect: {} as Settings };
+export const items = { $inferSelect: {} as Item };
+
 export type Customer = z.infer<typeof insertCustomerSchema> & { id: number };
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 

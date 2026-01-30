@@ -6,7 +6,8 @@ import { format } from "date-fns";
 import { useCustomers } from "@/hooks/use-customers";
 import { useSettings } from "@/hooks/use-settings";
 import { useCreateInvoice, useUpdateInvoice, useInvoice, useInvoices } from "@/hooks/use-invoices";
-import { insertInvoiceSchema, type InsertInvoice, type InvoiceItem } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import { insertInvoiceSchema, type InsertInvoice, type InvoiceItem, type Item } from "@shared/schema";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,10 @@ export default function InvoiceForm() {
   const { data: settings } = useSettings();
   const { data: invoices } = useInvoices();
   const { data: existingInvoice } = useInvoice(parseInt(id || "0"));
+  
+  const { data: availableItems } = useQuery<Item[]>({
+    queryKey: ["/api/items"],
+  });
   
   const createMutation = useCreateInvoice();
   const updateMutation = useUpdateInvoice();
@@ -241,7 +246,29 @@ export default function InvoiceForm() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <Input placeholder="Item description" {...field} />
+                                  <div className="flex gap-2">
+                                    <Select 
+                                      onValueChange={(val) => {
+                                        const selectedItem = availableItems?.find(i => i.name === val);
+                                        if (selectedItem) {
+                                          form.setValue(`items.${index}.description`, selectedItem.name);
+                                          form.setValue(`items.${index}.unitPrice`, selectedItem.sellingPrice);
+                                        }
+                                      }}
+                                    >
+                                      <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Select Item" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {availableItems?.map((item) => (
+                                          <SelectItem key={item.id} value={item.name}>
+                                            {item.name} (₹{item.sellingPrice})
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <Input placeholder="Item description" {...field} className="flex-1" />
+                                  </div>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -343,7 +370,7 @@ export default function InvoiceForm() {
                         <FormMessage />
                         <div className="pt-2">
                           <Link href="/customers">
-                            <Button variant="link" className="px-0 h-auto text-xs" type="button">
+                            <Button variant="outline" className="px-0 h-auto text-xs" type="button">
                               + Add new customer
                             </Button>
                           </Link>
