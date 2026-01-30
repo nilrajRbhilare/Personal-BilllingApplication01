@@ -47,6 +47,18 @@ export const insertSettingsSchema = z.object({
 
 // === DOMAIN MODELS ===
 
+export const insertItemSchema = z.object({
+  name: z.string().min(1, "Item name is required"),
+  hsnCode: z.string().min(1, "HSN/SAC code is required"),
+  sellingPrice: z.coerce.number().min(0, "Selling price must be positive"),
+  costPrice: z.coerce.number().min(0, "Cost price must be positive"),
+  taxRate: z.coerce.number().min(0).max(100),
+  description: z.string().optional(),
+});
+
+export type Item = z.infer<typeof insertItemSchema> & { id: number };
+export type InsertItem = z.infer<typeof insertItemSchema>;
+
 export type Customer = z.infer<typeof insertCustomerSchema> & { id: number };
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 

@@ -20,6 +20,13 @@ export interface IStorage {
   // Settings
   getSettings(): Promise<Settings | undefined>;
   updateSettings(settings: InsertSettings): Promise<Settings>;
+
+  // Items
+  getItems(): Promise<Item[]>;
+  getItem(id: number): Promise<Item | undefined>;
+  createItem(item: InsertItem): Promise<Item>;
+  updateItem(id: number, item: Partial<InsertItem>): Promise<Item | undefined>;
+  deleteItem(id: number): Promise<void>;
 }
 
 export class FileStorage implements IStorage {
@@ -27,6 +34,7 @@ export class FileStorage implements IStorage {
   private customersFile = path.join(this.dataDir, "customers.json");
   private invoicesFile = path.join(this.dataDir, "invoices.json");
   private settingsFile = path.join(this.dataDir, "settings.json");
+  private itemsFile = path.join(this.dataDir, "items.json");
 
   constructor() {
     this.ensureDataDir();
@@ -38,6 +46,19 @@ export class FileStorage implements IStorage {
     } catch {
       await fs.mkdir(this.dataDir, { recursive: true });
     }
+    
+    // Seed Items
+    await this.ensureFile(this.itemsFile, [
+      {
+        id: 1,
+        name: "Web Development Service",
+        hsnCode: "998311",
+        sellingPrice: 100,
+        costPrice: 50,
+        taxRate: 18,
+        description: "Hourly web development consulting"
+      }
+    ]);
     
     // Seed Customers
     await this.ensureFile(this.customersFile, [
@@ -219,6 +240,42 @@ export class FileStorage implements IStorage {
     const settings: Settings = { ...insertSettings, id: 1 };
     await this.writeJson(this.settingsFile, [settings]);
     return settings;
+  }
+
+  // Items
+  async getItems(): Promise<Item[]> {
+    return this.readJson<Item[]>(this.itemsFile);
+  }
+
+  async getItem(id: number): Promise<Item | undefined> {
+    const items = await this.readJson<Item[]>(this.itemsFile);
+    return items.find(i => i.id === id);
+  }
+
+  async createItem(insertItem: InsertItem): Promise<Item> {
+    const items = await this.readJson<Item[]>(this.itemsFile);
+    const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+    const item: Item = { ...insertItem, id: newId };
+    items.push(item);
+    await this.writeJson(this.itemsFile, items);
+    return item;
+  }
+
+  async updateItem(id: number, updates: Partial<InsertItem>): Promise<Item | undefined> {
+    const items = await this.readJson<Item[]>(this.itemsFile);
+    const index = items.findIndex(i => i.id === id);
+    if (index === -1) return undefined;
+
+    const updatedItem = { ...items[index], ...updates };
+    items[index] = updatedItem;
+    await this.writeJson(this.itemsFile, items);
+    return updatedItem;
+  }
+
+  async deleteItem(id: number): Promise<void> {
+    let items = await this.readJson<Item[]>(this.itemsFile);
+    items = items.filter(i => i.id !== id);
+    await this.writeJson(this.itemsFile, items);
   }
 }
 

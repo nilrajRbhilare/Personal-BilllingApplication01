@@ -127,6 +127,50 @@ export const api = {
       },
     },
   },
+  items: {
+    list: {
+      method: "GET" as const,
+      path: "/api/items",
+      responses: {
+        200: z.array(z.custom<any>()),
+      },
+    },
+    get: {
+      method: "GET" as const,
+      path: "/api/items/:id",
+      responses: {
+        200: z.custom<any>(),
+        404: errorSchemas.notFound,
+      },
+    },
+    create: {
+      method: "POST" as const,
+      path: "/api/items",
+      input: z.any(),
+      responses: {
+        201: z.custom<any>(),
+        400: errorSchemas.validation,
+      },
+    },
+    update: {
+      method: "PUT" as const,
+      path: "/api/items/:id",
+      input: z.any(),
+      responses: {
+        200: z.custom<any>(),
+        404: errorSchemas.notFound,
+        400: errorSchemas.validation,
+      },
+    },
+    delete: {
+      method: "DELETE" as const,
+      path: "/api/items/:id",
+      responses: {
+        204: z.void(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {

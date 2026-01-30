@@ -155,5 +155,45 @@ export async function registerRoutes(
     }
   });
 
+  // Items
+  app.get(api.items.list.path, async (req, res) => {
+    const items = await storage.getItems();
+    res.json(items);
+  });
+
+  app.get(api.items.get.path, async (req, res) => {
+    const item = await storage.getItem(Number(req.params.id));
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    res.json(item);
+  });
+
+  app.post(api.items.create.path, async (req, res) => {
+    try {
+      const item = await storage.createItem(req.body);
+      res.status(201).json(item);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to create item" });
+    }
+  });
+
+  app.put(api.items.update.path, async (req, res) => {
+    try {
+      const item = await storage.updateItem(Number(req.params.id), req.body);
+      if (!item) {
+        return res.status(404).json({ message: "Item not found" });
+      }
+      res.json(item);
+    } catch (err) {
+      res.status(400).json({ message: "Failed to update item" });
+    }
+  });
+
+  app.delete(api.items.delete.path, async (req, res) => {
+    await storage.deleteItem(Number(req.params.id));
+    res.status(204).send();
+  });
+
   return httpServer;
 }

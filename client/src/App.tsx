@@ -12,11 +12,16 @@ import Invoices from "@/pages/Invoices";
 import InvoiceForm from "@/pages/InvoiceForm";
 import InvoiceDetail from "@/pages/InvoiceDetail";
 import Settings from "@/pages/Settings";
+import ItemsList from "@/pages/items/ItemsList";
+import ItemForm from "@/pages/items/ItemForm";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/items" component={ItemsList} />
+      <Route path="/items/new" component={ItemForm} />
+      <Route path="/items/:id/edit" component={ItemForm} />
       <Route path="/customers" component={Customers} />
       <Route path="/invoices" component={Invoices} />
       <Route path="/invoices/new" component={InvoiceForm} />
