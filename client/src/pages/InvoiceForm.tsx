@@ -56,7 +56,7 @@ export default function InvoiceForm() {
       date: format(new Date(), "yyyy-MM-dd"),
       dueDate: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
       status: "draft",
-      items: [{ description: "", quantity: 1, unitPrice: 0 }],
+      items: [{ description: "", quantity: 1, unitPrice: 0, taxRate: 0 }],
       notes: "Thank you for your business!",
       subtotal: 0,
       tax: 0,
@@ -102,15 +102,19 @@ export default function InvoiceForm() {
   useEffect(() => {
     if (!settings) return;
 
-    const subtotal = items.reduce((acc, item) => {
-      return acc + (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
-    }, 0);
+    const totals = items.reduce((acc, item) => {
+      const lineSubtotal = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
+      const lineTax = lineSubtotal * ((Number(item.taxRate) || 0) / 100);
+      return {
+        subtotal: acc.subtotal + lineSubtotal,
+        tax: acc.tax + lineTax
+      };
+    }, { subtotal: 0, tax: 0 });
 
-    const tax = subtotal * (Number(settings.taxPercentage) / 100);
-    const total = subtotal + tax;
+    const total = totals.subtotal + totals.tax;
 
-    form.setValue("subtotal", subtotal);
-    form.setValue("tax", tax);
+    form.setValue("subtotal", totals.subtotal);
+    form.setValue("tax", totals.tax);
     form.setValue("total", total);
   }, [items, settings, form]);
 
@@ -230,7 +234,7 @@ export default function InvoiceForm() {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-lg">Items</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={() => append({ description: "", quantity: 1, unitPrice: 0 })}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => append({ description: "", quantity: 1, unitPrice: 0, taxRate: 0 })}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Item
                     </Button>
@@ -253,6 +257,7 @@ export default function InvoiceForm() {
                                         if (selectedItem) {
                                           form.setValue(`items.${index}.description`, selectedItem.name);
                                           form.setValue(`items.${index}.unitPrice`, selectedItem.sellingPrice);
+                                          form.setValue(`items.${index}.taxRate`, selectedItem.taxRate);
                                         }
                                       }}
                                     >
@@ -388,7 +393,7 @@ export default function InvoiceForm() {
                     <span>₹{form.getValues("subtotal").toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax ({settings?.taxPercentage}%)</span>
+                    <span className="text-muted-foreground">Tax</span>
                     <span>₹{form.getValues("tax").toFixed(2)}</span>
                   </div>
                   <Separator className="bg-slate-200" />
