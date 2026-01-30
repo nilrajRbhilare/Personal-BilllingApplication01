@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useParams, Link } from "wouter";
@@ -99,24 +99,31 @@ export default function InvoiceForm() {
   // Watch items to calculate totals
   const items = useWatch({ control: form.control, name: "items" });
   
-  useEffect(() => {
-    if (!settings) return;
-
-    const totals = items.reduce((acc, item) => {
-      const lineSubtotal = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
-      const lineTax = lineSubtotal * ((Number(item.taxRate) || 0) / 100);
+  const { subtotal, tax, total } = useMemo(() => {
+    const totals = (items || []).reduce((acc, item) => {
+      const q = Number(item.quantity) || 0;
+      const p = Number(item.unitPrice) || 0;
+      const t = Number(item.taxRate) || 0;
+      const lineSubtotal = q * p;
+      const lineTax = lineSubtotal * (t / 100);
       return {
         subtotal: acc.subtotal + lineSubtotal,
         tax: acc.tax + lineTax
       };
     }, { subtotal: 0, tax: 0 });
 
-    const total = totals.subtotal + totals.tax;
-
-    form.setValue("subtotal", totals.subtotal);
-    form.setValue("tax", totals.tax);
+    return {
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      total: totals.subtotal + totals.tax
+    };
+  }, [items]);
+  
+  useEffect(() => {
+    form.setValue("subtotal", subtotal);
+    form.setValue("tax", tax);
     form.setValue("total", total);
-  }, [items, settings, form]);
+  }, [subtotal, tax, total, form]);
 
   const onSubmit = (data: InsertInvoice) => {
     if (isEditing) {
@@ -418,16 +425,16 @@ export default function InvoiceForm() {
                     <CardContent className="p-6 space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>₹{form.getValues("subtotal").toFixed(2)}</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Tax</span>
-                        <span>₹{form.getValues("tax").toFixed(2)}</span>
+                        <span>₹{tax.toFixed(2)}</span>
                       </div>
                       <Separator className="bg-slate-200" />
                       <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>₹{form.getValues("total").toFixed(2)}</span>
+                        <span>₹{total.toFixed(2)}</span>
                       </div>
                     </CardContent>
                   </Card>
