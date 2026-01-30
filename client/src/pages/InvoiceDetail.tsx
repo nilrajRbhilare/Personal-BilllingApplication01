@@ -51,7 +51,7 @@ export default function InvoiceDetail() {
         <div className="text-center py-12">
           <h2 className="text-xl font-bold">Invoice not found</h2>
           <Link href="/invoices">
-            <Button variant="link">Back to Invoices</Button>
+            <Button variant="outline">Back to Invoices</Button>
           </Link>
         </div>
       </Layout>

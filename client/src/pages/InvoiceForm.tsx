@@ -159,10 +159,10 @@ export default function InvoiceForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="md:col-span-2 shadow-sm">
+          <div className="flex flex-col gap-6">
+            <Card className="shadow-sm">
               <CardContent className="p-6 space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="invoiceNumber"
@@ -182,7 +182,7 @@ export default function InvoiceForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select status" />
@@ -198,9 +198,6 @@ export default function InvoiceForm() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="date"
@@ -242,13 +239,14 @@ export default function InvoiceForm() {
                   
                   <div className="space-y-4">
                     {fields.map((field, index) => (
-                      <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-                        <div className="col-span-4">
+                      <div key={field.id} className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-3">
                           <FormField
                             control={form.control}
                             name={`items.${index}.description`}
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel className={index > 0 ? "sr-only" : ""}>Item</FormLabel>
                                 <FormControl>
                                   <div className="flex flex-col gap-1">
                                     <Select 
@@ -272,7 +270,7 @@ export default function InvoiceForm() {
                                         ))}
                                       </SelectContent>
                                     </Select>
-                                    <Input placeholder="Item description" {...field} className="h-8" />
+                                    <Input placeholder="Description" {...field} className="h-8" />
                                   </div>
                                 </FormControl>
                                 <FormMessage />
@@ -280,12 +278,13 @@ export default function InvoiceForm() {
                             )}
                           />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-1">
                           <FormField
                             control={form.control}
                             name={`items.${index}.quantity`}
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel className={index > 0 ? "sr-only" : ""}>Qty</FormLabel>
                                 <FormControl>
                                   <Input type="number" placeholder="Qty" min="1" {...field} />
                                 </FormControl>
@@ -293,16 +292,17 @@ export default function InvoiceForm() {
                             )}
                           />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-2">
                           <FormField
                             control={form.control}
                             name={`items.${index}.unitPrice`}
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel className={index > 0 ? "sr-only" : ""}>Price</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-2 top-2.5 text-muted-foreground">₹</span>
-                                    <Input type="number" className="pl-6" placeholder="Price" min="0" step="0.01" {...field} />
+                                    <span className="absolute left-2 top-2.5 text-muted-foreground text-xs">₹</span>
+                                    <Input type="number" className="pl-5" placeholder="Price" min="0" step="0.01" {...field} />
                                   </div>
                                 </FormControl>
                               </FormItem>
@@ -315,22 +315,36 @@ export default function InvoiceForm() {
                             name={`items.${index}.taxRate`}
                             render={({ field }) => (
                               <FormItem>
+                                <FormLabel className={index > 0 ? "sr-only" : ""}>Tax %</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <Input type="number" className="pr-6" placeholder="Tax %" min="0" max="100" step="0.01" {...field} />
-                                    <span className="absolute right-2 top-2.5 text-muted-foreground">%</span>
+                                    <Input type="number" className="pr-5" placeholder="Tax" min="0" max="100" step="0.01" {...field} />
+                                    <span className="absolute right-2 top-2.5 text-muted-foreground text-xs">%</span>
                                   </div>
                                 </FormControl>
                               </FormItem>
                             )}
                           />
                         </div>
-                        <div className="col-span-1 flex justify-end">
+                        <div className="col-span-3">
+                          <FormItem>
+                            <FormLabel className={index > 0 ? "sr-only" : ""}>Amount (Inc. Tax)</FormLabel>
+                            <div className="h-9 flex items-center px-3 border rounded-md bg-muted/30 font-medium">
+                              ₹{(() => {
+                                const q = Number(items[index]?.quantity) || 0;
+                                const p = Number(items[index]?.unitPrice) || 0;
+                                const t = Number(items[index]?.taxRate) || 0;
+                                return (q * p * (1 + t/100)).toFixed(2);
+                              })()}
+                            </div>
+                          </FormItem>
+                        </div>
+                        <div className="col-span-1 flex justify-end pb-2">
                           <Button 
                             type="button" 
                             variant="ghost" 
                             size="icon" 
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="text-destructive h-8 w-8"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -346,80 +360,80 @@ export default function InvoiceForm() {
                   </div>
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="Add any notes or payment details..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="customerId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Customer</FormLabel>
+                          <div className="flex gap-2">
+                            <Select 
+                              onValueChange={(val) => field.onChange(Number(val))} 
+                              value={field.value ? String(field.value) : undefined}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="flex-1">
+                                  <SelectValue placeholder="Select customer" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {customers?.map((customer) => (
+                                  <SelectItem key={customer.id} value={String(customer.id)}>
+                                    {customer.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Link href="/customers">
+                              <Button variant="outline" type="button" size="icon" title="Add new customer">
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Notes</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Add any notes or payment details..." className="min-h-[100px]" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Card className="bg-slate-50 border-slate-200 shadow-sm h-fit self-end">
+                    <CardContent className="p-6 space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span>₹{form.getValues("subtotal").toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Tax</span>
+                        <span>₹{form.getValues("tax").toFixed(2)}</span>
+                      </div>
+                      <Separator className="bg-slate-200" />
+                      <div className="flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span>₹{form.getValues("total").toFixed(2)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </CardContent>
             </Card>
-
-            <div className="space-y-6">
-              <Card className="shadow-sm">
-                <CardContent className="p-6 space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="customerId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Customer</FormLabel>
-                        <Select 
-                          onValueChange={(val) => field.onChange(Number(val))} 
-                          value={field.value ? String(field.value) : undefined}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select customer" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {customers?.map((customer) => (
-                              <SelectItem key={customer.id} value={String(customer.id)}>
-                                {customer.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        <div className="pt-2">
-                          <Link href="/customers">
-                            <Button variant="outline" className="px-0 h-auto text-xs" type="button">
-                              + Add new customer
-                            </Button>
-                          </Link>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-50 border-slate-200 shadow-sm">
-                <CardContent className="p-6 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{form.getValues("subtotal").toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span>₹{form.getValues("tax").toFixed(2)}</span>
-                  </div>
-                  <Separator className="bg-slate-200" />
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span>₹{form.getValues("total").toFixed(2)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </form>
       </Form>

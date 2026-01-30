@@ -77,9 +77,10 @@ export const PrintableInvoice = forwardRef<HTMLDivElement, PrintableInvoiceProps
             <thead>
               <tr className="border-b-2 border-slate-100">
                 <th className="text-left py-3 text-xs uppercase font-bold text-slate-400 tracking-wider">Description</th>
-                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-24">Qty</th>
-                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-32">Price</th>
-                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-32">Total</th>
+                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-20">Qty</th>
+                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-24">Price</th>
+                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-20">Tax %</th>
+                <th className="text-right py-3 text-xs uppercase font-bold text-slate-400 tracking-wider w-28">Amount</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -88,8 +89,9 @@ export const PrintableInvoice = forwardRef<HTMLDivElement, PrintableInvoiceProps
                   <td className="py-4 text-slate-700 font-medium">{item.description}</td>
                   <td className="py-4 text-right text-slate-600 font-mono">{item.quantity}</td>
                   <td className="py-4 text-right text-slate-600 font-mono">₹{Number(item.unitPrice).toFixed(2)}</td>
+                  <td className="py-4 text-right text-slate-600 font-mono">{item.taxRate}%</td>
                   <td className="py-4 text-right text-slate-900 font-mono font-medium">
-                    ₹{(Number(item.quantity) * Number(item.unitPrice)).toFixed(2)}
+                    ₹{(Number(item.quantity) * Number(item.unitPrice) * (1 + (Number(item.taxRate) || 0) / 100)).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -105,7 +107,7 @@ export const PrintableInvoice = forwardRef<HTMLDivElement, PrintableInvoiceProps
               <span className="font-mono font-medium">₹{Number(invoice.subtotal).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Tax ({settings.taxPercentage}%)</span>
+              <span>Tax</span>
               <span className="font-mono font-medium">₹{Number(invoice.tax).toFixed(2)}</span>
             </div>
             <div className="flex justify-between border-t border-slate-200 pt-3 mt-3">
