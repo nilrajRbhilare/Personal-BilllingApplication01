@@ -243,14 +243,14 @@ export default function InvoiceForm() {
                   <div className="space-y-4">
                     {fields.map((field, index) => (
                       <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-                        <div className="col-span-6">
+                        <div className="col-span-4">
                           <FormField
                             control={form.control}
                             name={`items.${index}.description`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
-                                  <div className="flex gap-2">
+                                  <div className="flex flex-col gap-1">
                                     <Select 
                                       onValueChange={(val) => {
                                         const selectedItem = availableItems?.find(i => i.name === val);
@@ -261,18 +261,18 @@ export default function InvoiceForm() {
                                         }
                                       }}
                                     >
-                                      <SelectTrigger className="w-[180px]">
+                                      <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select Item" />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {availableItems?.map((item) => (
                                           <SelectItem key={item.id} value={item.name}>
-                                            {item.name} (₹{item.sellingPrice})
+                                            {item.name}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>
                                     </Select>
-                                    <Input placeholder="Item description" {...field} className="flex-1" />
+                                    <Input placeholder="Item description" {...field} className="h-8" />
                                   </div>
                                 </FormControl>
                                 <FormMessage />
@@ -303,6 +303,22 @@ export default function InvoiceForm() {
                                   <div className="relative">
                                     <span className="absolute left-2 top-2.5 text-muted-foreground">₹</span>
                                     <Input type="number" className="pl-6" placeholder="Price" min="0" step="0.01" {...field} />
+                                  </div>
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <FormField
+                            control={form.control}
+                            name={`items.${index}.taxRate`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input type="number" className="pr-6" placeholder="Tax %" min="0" max="100" step="0.01" {...field} />
+                                    <span className="absolute right-2 top-2.5 text-muted-foreground">%</span>
                                   </div>
                                 </FormControl>
                               </FormItem>
