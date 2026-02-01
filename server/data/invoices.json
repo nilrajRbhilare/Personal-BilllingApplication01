@@ -18,5 +18,25 @@
       }
     ],
     "id": 1
+  },
+  {
+    "customerId": 1,
+    "invoiceNumber": "INV-7497",
+    "date": "2026-01-30",
+    "dueDate": "2026-02-06",
+    "status": "draft",
+    "subtotal": 1000,
+    "tax": 180,
+    "total": 1180,
+    "notes": "Thank you for your business!",
+    "items": [
+      {
+        "description": "Web Development Service",
+        "quantity": 5,
+        "unitPrice": 1000,
+        "taxRate": 18
+      }
+    ],
+    "id": 2
   }
 ]
